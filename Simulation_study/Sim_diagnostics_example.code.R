@@ -46,7 +46,7 @@ read_files_in_directory <- function(subdirectory) {
 results_D2C5 <- read_files_in_directory("D2C5")
 
 # Load DI index results
-DI_results_D2 <- readRDS("Simulation_study/Sim_result/DI_results_D2.rds")
+DI_results_D2 <- readRDS("Simulation_study/Sim_result_example/DI_results_D2.rds")
 
 priors <- results_D2C5$priors
 
