@@ -9,35 +9,13 @@ This repository provides Stan code for fitting Growth Mixture Models (GMMs) and 
 - Graphs: Provides code to visualize within-class heterogeneity using real data from the NLSY (National Longitudinal Survey of Youth), including class-specific mean trajectories with shaded 50% mid-range and box plots of reading scores. Additionally, it includes graphs visualizing simulation results.
 
 <details>
-
 <summary>Stan Code</summary>
 
-This section includes functions to simulate datasets, compile and run the Stan model, and handle label switching. Detailed code and information are available in the [simulation design code](Simulation_study/Sim_design.code.R)
+This section includes functions to simulate datasets, compile and run the Stan model, and handle label switching. Detailed code and information are available in the [simulation design code.](Simulation_study/Sim_design.code.R)
 
 ### 1. simulate dataset
+`data_fun_MCMC` is a function to generate simulated data for MCMC. Refer to the [simulation code](Simulation_study/SimCode.source.R) for more details.
 ```ruby
-# Source the R script containing the function to simulate data
-source("~/SimCode.source.R")
-
-# Function to generate simulated data for MCMC
-data_fun_MCMC <- function() {
-  # Generate simulated data using the UncGMM_data function
-  UncGMM_dat <- UncGMM_data(
-    n_pers = 405,
-    n_time = 4,
-    beta_int = c(3.417, 2.637, 2.019), 
-    beta_slo_time = c(1.297, 2.607, 1.393), 
-    beta_slo_time_sq = c(-0.094, -0.472, -0.120),
-    sd_i = c(0.967, 0.599, 0.188), 
-    sd_s = c(0.263, 0.265, 0.356),  
-    cor_is = c(-0.567, 0.048, 0.677), 
-    sd_r = 0.469, 
-    K = 3,
-    lambda_K = c(0.266, 0.269, 0.465)
-  )
-  return(as.data.frame(UncGMM_dat))  # Return simulated data as data frame
-}
-
 # Load saved simulated datasets
 data_files <- list.files("~/SimDat", 
                          full.names = TRUE,
@@ -49,6 +27,7 @@ SimDat <- data_files %>%
   })   
 ```
 ### 2. Running model
+`Stan_D2C5` is a function to run MCMC with a Dirichlet prior with a concentration parameter of 2 and a Half-Cauchy prior with a scale of 5. Detailed code can be found in the [MCMC code.](Simulation_study/MCMC.source.R)
 ```ruby
 # Install CmdStan with specified number of cores
 install_cmdstan(cores = 4)  # Insert your number of cores
@@ -66,10 +45,16 @@ for (i in 1:length(SimDat)) {
   Stan_D2C5(SimDat[[i]], K = 3)$save_object(sprintf("Stan_a%i.rds", i))  # Save Stan objects
 }
 
-# Stan_D2C5 function in MCMC.source.R
-
 ```
 
 ### 3. Handling label switching
 `pp_sss` is a label switching function that takes a Stan fit object, the number of chains, and the number of iterations as inputs.
+
+</details>
+<details>
+<summary>Diagnostics for Problematic Behaviors</summary>
+
+### 1. Step 1: Initial Screening based on $\hat{R}$
+
+</details>
 
