@@ -183,7 +183,7 @@ Our simulated data was generated from a three-class GMM data-generating model us
 
 This section includes functions to simulate datasets, compile and run the Stan model, and handle label switching. Detailed code and information are available in the [simulation design code.](Simulation_study/Sim_design.code.R) 
 
-### 1. simulate dataset
+### 1. Simulate dataset
 `data_fun_MCMC` is a function to generate simulated data for MCMC. Refer to the [simulation code](Simulation_study/SimCode.source.R) for more details.
 ```ruby
 # Load saved simulated datasets
