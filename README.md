@@ -28,9 +28,9 @@ cmdstan_version()  # Check the version of CmdStan installed
 ## Visualizing within-class heterogeneity using NLSY data
 
 <details>
-<summary>Three-Class Model Fitting with NLSY Data</summary>
-
+<summary>Three-Class Model Fitting with NLSY Data</summary><br/>
 This section includes functions to read the NLSY data, compile and run the Stan model, and handle label switching.
+  
 ### 1. Reading the NLSY data
 We start by reading the dataset, checking for missing values, and removing any rows with missing data.
 
@@ -49,14 +49,17 @@ head(CurranLong_nm)
 ```
 ### 2. Compiling the Stan model
 We compile a GMM with marginal likelihood using Stan.
+
 ```ruby
 # Specify the path to the Stan model file
 sq_GMM_ML_file <- file.path(cmdstan_path(), "GMM_ML.stan")
 # Compile the Stan model
 sq_GMM_ML_mod <- cmdstan_model(sq_GMM_ML_file)
 ```
+
 ### 3. Preparing data for the Stan model
 We prepare a data list for fitting the Stan model. In this example, we fit a GMM with a Dirichlet prior (concentration parameter $\alpha = 10$) for the class probability parameters (i.e., D10) and a Half-Normal prior (scale parameter $\gamma = 50$) for the random-intercept and random-slope standard deviations (i.e., N50).
+
 ```ruby
 # Function to prepare data list for Stan model
 sq_GMMs_data_list <- function(GMM_dat, K) {
@@ -96,6 +99,7 @@ GMM_ML_fit_3c <- sq_GMM_ML_mod$sample(
 # Save the Stan object for later usage
 GMM_ML_fit_3c$save_object("GMM_ML_fit_3c_D10N50.rds")
 ```
+
 ### 5. Handling label switching
 After obtaining the Stan object, we handle label switching. This involves post-processing the MCMC samples to ensure that the labels are consistent across iterations and chains.
 ```ruby
@@ -154,7 +158,7 @@ for (i in 1:S) {
   mcmc[, 3, i + 8] <- as.matrix(post_par)[, paste('pred_class[', i, ',3]', sep = '')]
 }  
 # Source post-processing script
-source("Sim_result+example/PostProcessing_list.R")
+source("Sim_result_example/PostProcessing_list.R")
 # Apply post-processing to handle label switching
 fit_permuted_3c <- post_processing(chains = 5, iteration = 1000, K = 3, J = J + S, post_class, mcmc, post_class_p, post_par)
 # Save the processed results
@@ -163,8 +167,8 @@ saveRDS(fit_permuted_3c, "NLSY_ageApp/fit_permuted_3c_D10N100_d.rds")
 </details>
 
 <details>
-<summary>Visualizing within-class heterogeneity using the NLSY data</summary>
-This section includes code to visualize class-specific mean trajectories with shaded 50% mid-ranges and box plots of reading scores. The detailed code is available in the [application graphs code](NLSY_data_application/Application_diagnostics_graphs.code.R).
+<summary>Visualizing within-class heterogeneity using the NLSY data</summary><br/>
+This section includes code to visualize class-specific mean trajectories with shaded 50% mid-ranges and box plots of reading scores. The detailed code is available in the [application graphs code.](NLSY_data_application/Application_diagnostics_graphs.code.R)
 
 ![Figure 1: Class-specific mean trajectories with shaded 50% mid-range and box-plots of reading scores.](Graphs/AgeAppl_D10N50.png)
 </details>
@@ -175,7 +179,7 @@ This section includes code to visualize class-specific mean trajectories with sh
 Our simulated data was generated from a three-class GMM data-generating model using parameter estimates from a well-behaved solution with the NLSY data, where the occasion serves as the time variable. We then fit a three-class GMM with priors D2C5 (Dirichlet prior with concentration parameter 2 and half-Cauchy prior with scale parameter 5), which are vague/diffuse priors. This setup highlights the identification problem emphasized in our paper. The purpose is to demonstrate how to apply the recommended diagnostics to this D2C5 example.
 
 <details>
-<summary>Fitting GMM to simulated datasets</summary>
+<summary>Fitting GMM to simulated datasets</summary><br/>
 
 This section includes functions to simulate datasets, compile and run the Stan model, and handle label switching. Detailed code and information are available in the [simulation design code.](Simulation_study/Sim_design.code.R) 
 
@@ -216,7 +220,7 @@ for (i in 1:length(SimDat)) {
 
 
 <details>
-<summary>Diagnostics for Problematic Behaviors</summary>
+<summary>Diagnostics for Problematic Behaviors</summary><br/>
 
 In this section, we outline four steps of our recommended diagnostic process to identify problematic behaviors (i.e., persistently stuck sequences/chains, miniscule-class sequences, and twinlike-class chains). The code to run these diagnostics can be found in [simulation diagnostics example code.](Simulation_study/Sim_diagnostics_example.code.R)
 
