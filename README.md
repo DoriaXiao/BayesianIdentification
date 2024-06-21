@@ -218,7 +218,7 @@ for (i in 1:length(SimDat)) {
 <details>
 <summary>Diagnostics for Problematic Behaviors</summary>
 
-In this section, we outline four steps of our recommended diagnostic process to identify problematic behaviors (i.e., persistently stuck sequences/chains, miniscule-class sequences, and twinlike-class chains). The code to run these diagnostics can be found in [simulation diagnostics example code.](Simulation_study/Sim_result_example/Sim_diagnostics_example.code.R)
+In this section, we outline four steps of our recommended diagnostic process to identify problematic behaviors (i.e., persistently stuck sequences/chains, miniscule-class sequences, and twinlike-class chains). The code to run these diagnostics can be found in [simulation diagnostics example code.](Simulation_study/Sim_diagnostics_example.code.R)
 
 ```ruby
 # Load saved simulated datasets
