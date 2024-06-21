@@ -1004,7 +1004,15 @@ DI <- function(l, priors, num_classes, num_subjects, selected_chains, total_chai
 
 
 twinlike_classes <- function(DI_data, selected_chains, total_chains, iter_per_chain, high_DI_value, persist_length,  happen_times) {
-  Data <- DI_data
+  indices <- lapply(selected_chains, function(chain) {
+    start_index <- (chain - 1) * iter_per_chain + 1
+    end_index <- chain * iter_per_chain
+    return(start_index:end_index)
+  })
+  
+  # Combine the indices and subset the data
+  subset_indices <- unlist(indices)
+  Data <- DI_data[subset_indices, ]
   DI_plot <- ggplot(Data, aes(x = x)) +
     geom_line(aes(y = Data[,2], color = paste(colnames(Data)[2]), linetype = paste(colnames(Data)[2])), linewidth = 1) +
     geom_line(aes(y = Data[,3], color = paste(colnames(Data)[3]), linetype = paste(colnames(Data)[3])), linewidth = 1) +
@@ -1191,7 +1199,6 @@ diagnostics_graphs <- function(Data, window_size, selected_chains, iter_per_chai
                                    "Lambda 2" = expression(paste(lambda^(2))), 
                                    "Lambda 1" = expression(paste(lambda^(1)))))
   ##############################
-  source("C:/Users/xingy/OneDrive/2023 Fall/BayesIdentify/twinlike_diag.R")
   DI_plot <- twinlike_classes(DI_data, selected_chains, total_chains, iter_per_chain, 
                               high_DI_value, persist_length,  happen_times)$DI_plot
   filtered_DI_values <- twinlike_classes(DI_data, selected_chains, total_chains, iter_per_chain, 
