@@ -291,7 +291,7 @@ traceplot(Data_reordered = traceData(results_D2C5$priors, 1, 100000)$data,
 
 ### Step 2: Stuck-sequence diagnostic
 In this diagnostic step, we aim to identify sequences where parameter draws remain unchanged over consecutive iterations. This is achieved by calculating the moving standard deviation using a specified window size of 10 iterations (adjustable as needed). 
-The `stuck_by_chain` function is used for this purpose, which is designed to detect stuck sequences within MCMC chains. Users have the flexibility to customize the size of the moving window used for standard deviation computation and specify the minimum length of a stuck sequence that should be considered significant. The stuck_by_chain function provides several outputs:
+The [stuck_by_chain](Diagnostics/Stuck_sequence_diagnostic.source.R) function is used for this purpose, which is designed to detect stuck sequences within MCMC chains. Users have the flexibility to customize the size of the moving window used for standard deviation computation and specify the minimum length of a stuck sequence that should be considered significant. The stuck_by_chain function provides several outputs:
 * Messages indicating which chains exhibit stuck sequences.
 * The total number of chains with identified stuck sequences.
 * Indices of chains where stuck sequences were detected.
@@ -310,9 +310,9 @@ stuck
 ```
 
 ### Step 3: Twinlike-class diagnostic
-To identify when class-specific parameters for a pair of classes are nearly indistinguishable, we employ the twinlike_classes function, which use distinguishability index (DI) to assess the similarity between classes. A DI value approaching zero indicates twinlike-class behavior.
+To identify when class-specific parameters for a pair of classes are nearly indistinguishable, we employ the twinlike_classes function, which uses distinguishability index (DI) to assess the similarity between classes. A DI value approaching zero indicates twinlike-class behavior.
 
-This function generates a plot (`DI_plot`) showing the distinguishability index for different class pairs over iterations. It also returns a traceplot (`traceplot`) for selected chains, helping users visualize the MCMC chain behavior. The combined plot (`DIplot_traceplot`) presents both visualizations aligned vertically for comparison. Additionally, `filtered_DI_values` provides DI values that exceed a specified occurrence threshold (`happen_times` - 1), indicating classes with persistent similarities.
+The [twinlike_classes](Diagnostics/Twinlike_classes_diagnostics.source.R) function generates a plot (`DI_plot`) showing the distinguishability index for different class pairs over iterations. It also returns a traceplot (`traceplot`) for selected chains, helping users visualize the MCMC chain behavior. The combined plot (`DIplot_traceplot`) presents both visualizations aligned vertically for comparison. Additionally, `filtered_DI_values` provides DI values that exceed a specified occurrence threshold (`happen_times` - 1), indicating classes with persistent similarities.
 
 Application of `twinlike_classes`  to the D2C5 example:
 ```ruby
@@ -328,5 +328,31 @@ twinlike_classes(DI_data = DI_data,
 
 The output figures display the traceplot of $\lambda^{(1)}$, $\lambda^{(2)}$, and $\lambda^{(3)}$ in the top panel, and the distinguishability index for all class pairs in the bottom panel. The results indicate that this D2C5 example does not exhibit twinlike-class sequences.
 ![Traceplot of class probabilities for three classes and DI plot for all class pairs](Graphs/D2C5_twinlike_diag_example.png)
+
+
+### Step 4: Miniscule-class diagnostic
+
+We use [diagnostics_graphs](Diagnostics/Three_diagnostic_graphs.source.R) function to analyze and visually assess occurrences of miniscule-class behavior. This function computes moving statistics, employs K-means clustering to identify miniscule-class behavior, and produces traceplots, moving average and standard deviation plots, and DI plots. These outputs are integrated to provide comprehensive visual diagnostics. Additionally, the function includes detailed warnings and information regarding instances where miniscule-class behavior is observed across chains, specifying the affected chains.
+
+
+For example, we apply `diagnostics_graphs` to the D2C5 dataset, selecting the first four chains:
+
+```ruby
+DI_data = DI_results_D2$D2C5
+# Function to perform diagnostics and generate visualizations for miniscule-class behavior
+diagnostics_graphs(
+  Data = traceData(priors, 1, 100000), #   Data: List containing MCMC trace data
+  window_size = 10, #   window_size: Size of the moving window for computing statistics
+  selected_chains = c(1:4), #   selected_chains: Indices of chains to analyze
+  iter_per_chain = 1000, #   iter_per_chain: Number of iterations per chain
+  top_percentile_threshold = 0.95, #   top_percentile_threshold: Threshold for identifying top percentile distances in clustering
+  DI_data = DI_data, #   DI_data: Data for DI plots
+  total_chains = 100, #   total_chains: Total number of chains in the MCMC run
+  high_DI_value = 95, #   high_DI_value: Threshold for DI value
+  persist_length = 3, #   persist_length: Minimum length of persistent DI values indicating DI value exceed the threshold
+  happen_times = 1    #   happen_times: Occurrence threshold for DI values
+)
+```
+
 </details>
 
