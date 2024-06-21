@@ -342,11 +342,11 @@ To identify when class-specific parameters for a pair of classes are nearly indi
 
 The [twinlike_classes](Diagnostics/Twinlike_classes_diagnostics.source.R) function generates a plot (`DI_plot`) showing the distinguishability index for different class pairs over iterations. It also returns a traceplot (`traceplot`) for selected chains, helping users visualize the MCMC chain behavior. The combined plot (`DIplot_traceplot`) presents both visualizations aligned vertically for comparison. Additionally, `filtered_DI_values` provides DI values that exceed a specified occurrence threshold (`happen_times` - 1), indicating classes with persistent similarities.
 
-Application of `twinlike_classes`  to the D2C5 example:
+We select the first four chains from the D2C5 example to display the application of the `twinlike-class` function:
 ```ruby
 DI_data = DI_results_D2$D2C5
 twinlike_classes(DI_data = DI_data, 
-                 selected_chains = c(1:100), 
+                 selected_chains = c(1:4), 
                  total_chains = 100, 
                  iter_per_chain = 1000, 
                  high_DI_value = 95, 
@@ -363,7 +363,7 @@ The output figures display the traceplot of $\lambda^{(1)}$, $\lambda^{(2)}$, an
 We use [diagnostics_graphs](Diagnostics/Three_diagnostic_graphs.source.R) function to analyze and visually assess occurrences of miniscule-class behavior. This function computes moving statistics, employs K-means clustering to identify miniscule-class behavior, and produces traceplots, moving average and standard deviation plots, and DI plots. These outputs are integrated to provide comprehensive visual diagnostics. Additionally, the function includes detailed warnings and information regarding instances where miniscule-class behavior is observed across chains, specifying the affected chains.
 
 
-For example, we apply `diagnostics_graphs` to the D2C5 dataset, selecting the first four chains:
+For example, we apply `diagnostics_graphs` to the D2C5 dataset, selecting the first four chains as an example:
 
 ```ruby
 DI_data = DI_results_D2$D2C5
@@ -387,3 +387,4 @@ The output figures display 1) the traceplot of $\lambda^{(1)}$, $\lambda^{(2)}$,
 
 </details>
 
+We hope you find our GMM applications and diagnostics useful for your research. Your feedback and suggestions are invaluable to us, and you can reach out to Doria directly via email at [xiaoxg@berkeley.edu](xiaoxg@berkeley.edu).
