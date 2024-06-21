@@ -70,8 +70,6 @@ sq_GMMs_data_list <- function(GMM_dat, K) {
     y = GMM_dat$read,
     time = GMM_dat$kidage6,
     time_sq = GMM_dat$kidagesq,
-    X1 = GMM_dat$kidgen,
-    Z1 = GMM_dat$kidgen,
     N = nrow(GMM_dat),
     J = length(unique(GMM_dat$id)),
     s = cluster_size,
@@ -90,7 +88,6 @@ We fit a three-class GMM to the NLSY data using 5 chains, each running 1,000 ite
 GMM_ML_fit_3c <- sq_GMM_ML_mod$sample(
   data = sq_GMMs_data_list(CurranLong_nm, K = 3),
   chains = 5,
-  parallel_chains = 4,
   iter_sampling = 1000,
   refresh = 1000,  
   save_warmup = TRUE,
@@ -298,16 +295,43 @@ The [stuck_by_chain](Diagnostics/Stuck_sequence_diagnostic.source.R) function is
 * Chains that display persistent stuck behavior throughout all iterations.
 * Lengths of the identified stuck sequences.
 
-**Example usage**:
+We apply `stuck_by_chain` to the D2C5 example using a window size of 10 and a stuck length of 20 to check for stuck sequences/chains.
+
 ```ruby
 stuck <- lapply(seq_along(priors), 
                 function(i) 
                   stuck_by_chain(priors[[i]], i, total_iter = 100000,
                                  iter_per_chain = 1000, window_size = 10, stuck_length = 20))
 
+
+```
+The result display:
+
+```ruby
 # Display results
 stuck
+> stuck
+[[1]]
+[[1]]$warnings
+[1] "Stuck issue is observed in 38 chains, each at chains 2, 3, 4, 17, 18, 21, 22, 23, 25, 27, 34, 36, 38, 42, 44, 45, 50, 57, 59, 61, 66, 67, 68, 69, 71, 72, 73, 74, 77, 78, 80, 84, 87, 90, 91, 95, 96, 97"
+
+[[1]]$index
+[1] 1
+
+[[1]]$num_chains_with_stuck
+[1] 38
+
+[[1]]$chains_with_stuck
+ [1]  2  3  4 17 18 21 22 23 25 27 34 36 38 42 44 45 50 57 59 61 66 67 68 69 71 72 73 74 77 78 80 84 87 90 91 95 96 97
+
+[[1]]$persistent_stuck_chain
+ [1]  2  3  4 17 18 21 22 23 25 27 34 36 38 42 44 45 50 57 59 61 66 67 68 69 71 72 73 74 77 78 80 84 87 90 91 95 96 97
+
+[[1]]$stuck_lengths
+ [1] 1000 1000 1000   10   10   17   17   19 1000 1000 1000 1000 1000 1000 1000 1000 1000   16   14 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000 1000
+[43]   10 1000 1000 1000
 ```
+This output indicates that out of 100 chains, a stuck issue is observed in 38 chains with a stuck length larger than the set threshold of 20 iterations, specifying which chains are affected. It also indicates which chains are persistently stuck and the lengths of the stuck sequences.
 
 ### Step 3: Twinlike-class diagnostic
 To identify when class-specific parameters for a pair of classes are nearly indistinguishable, we employ the twinlike_classes function, which uses distinguishability index (DI) to assess the similarity between classes. A DI value approaching zero indicates twinlike-class behavior.
@@ -353,6 +377,9 @@ diagnostics_graphs(
   happen_times = 1    #   happen_times: Occurrence threshold for DI values
 )
 ```
+
+The output figures display 1) the traceplot of $\lambda^{(1)}$, $\lambda^{(2)}$, and $\lambda^{(3)}$ in the top panel, 2) moving average and moving standard deviation of $\lambda^{(1)}$ in the middle panel, and 3) the distinguishability index for all class pairs in the bottom panel. The results indicate that this D2C5 example does exhibit miniscule-class behavior in Chain 1.
+![Diagnostic figures for the D2C5 example](Graphs/D2C5_miniscule_diag_example.png)
 
 </details>
 
