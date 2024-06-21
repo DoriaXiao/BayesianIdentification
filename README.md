@@ -56,7 +56,7 @@ sq_GMM_ML_file <- file.path(cmdstan_path(), "GMM_ML.stan")
 sq_GMM_ML_mod <- cmdstan_model(sq_GMM_ML_file)
 ```
 ### 3. Preparing data for the Stan model
-We prepare a data list for fitting the Stan model. In this example, we fit a GMM with a Dirichlet prior (concentration parameter $\alpha = 10$) for the class probability parameters and a Half-Normal prior (scale parameter $\eta = 2$) for the random-intercept and random-slope standard deviations.
+We prepare a data list for fitting the Stan model. In this example, we fit a GMM with a Dirichlet prior (concentration parameter $\alpha = 10$) for the class probability parameters (i.e., D10) and a Half-Normal prior (scale parameter $\gamma = 50$) for the random-intercept and random-slope standard deviations (i.e., N50).
 ```ruby
 # Function to prepare data list for Stan model
 sq_GMMs_data_list <- function(GMM_dat, K) {
@@ -167,16 +167,20 @@ saveRDS(fit_permuted_3c, "NLSY_ageApp/fit_permuted_3c_D10N100_d.rds")
 
 <details>
 <summary>Visualizing within-class heterogeneity using the NLSY data</summary>
-The code to class-specific mean trajectories with shaded 50% mid-range and box plots of reading scores can be found in [application graphs code](NLSY_data_application/Application_diagnostics_graphs.cade.R).
+This section includes code to visualize class-specific mean trajectories with shaded 50% mid-ranges and box plots of reading scores. The detailed code is available in the [application graphs code](NLSY_data_application/Application_diagnostics_graphs.code.R).
 
+![Figure 1: Class-specific mean trajectories with shaded 50% mid-range and box-plots of reading scores.](Graphs/AgeAppl_D10N50.png)
 </details>
 
+
+## Diagnostics for Problematic Behaviors
+
+Our simulated data was generated from a three-class GMM data-generating model using parameter estimates from a well-behaved solution with the NLSY data, where the occasion serves as the time variable. We then fit a three-class GMM with priors D2C5 (Dirichlet prior with concentration parameter 2 and half-Cauchy prior with scale parameter 5), which are vague/diffuse priors. This setup highlights the identification problem emphasized in our paper. The purpose is to demonstrate how to apply the recommended diagnostics to this D2C5 example.
+
 <details>
-<summary>Stan Code</summary>
+<summary>Fitting GMM to simulated datasets</summary>
 
-
-
-This section includes functions to simulate datasets, compile and run the Stan model, and handle label switching. Detailed code and information are available in the [simulation design code.](Simulation_study/Sim_design.code.R)
+This section includes functions to simulate datasets, compile and run the Stan model, and handle label switching. Detailed code and information are available in the [simulation design code.](Simulation_study/Sim_design.code.R) 
 
 ### 1. simulate dataset
 `data_fun_MCMC` is a function to generate simulated data for MCMC. Refer to the [simulation code](Simulation_study/SimCode.source.R) for more details.
@@ -212,10 +216,117 @@ for (i in 1:length(SimDat)) {
 `pp_sss` is a label switching function that takes a Stan fit object, the number of chains, and the number of iterations as inputs.
 
 </details>
+
+
 <details>
 <summary>Diagnostics for Problematic Behaviors</summary>
 
-### 1. Step 1: Initial Screening based on $\hat{R}$
+In this section, we outline four steps of our recommended diagnostic process to identify problematic behaviors (i.e., persistently stuck sequences/chains, miniscule-class sequences, and twinlike-class chains). The code to run these diagnostics can be found in [simulation diagnostics example code.](Simulation_study/Sim_result_example/Sim_diagnostics_example.code.R)
 
+```ruby
+# Load saved simulated datasets
+data_files <- list.files("~/Simulation_study/SimDat", full.names = TRUE, pattern = "SimulatedData_a")
+SimDat <- data_files %>% map(read_csv)
+
+# Function to read MCMC results from a directory
+read_Stan_in_directory <- function(directory) {
+  file_paths <- list.files(directory, full.names = TRUE, pattern = "Stan_a")
+  file_contents <- map(file_paths, readRDS)
+  return(file_contents)
+}
+# Function to read files from a specific subdirectory
+read_files_in_directory <- function(subdirectory) {
+  directory <- paste("Simulation_study/MCMCResults_", subdirectory, sep = "")
+  file_paths <- list.files(directory, full.names = TRUE, pattern = "rep_a")
+  file_contents <- map(file_paths, readRDS)
+  
+  # Read the log likelihood file
+  log_l_path <- file.path(directory, "log_l.rds")
+  log_l <- readRDS(log_l_path)
+  
+  return(list(log_l = log_l, priors = file_contents))
+}
+
+# Replace "D2C5" with your desired subdirectory
+results_D2C5 <- read_files_in_directory("D2C5")
+
+# Load Distinguishability Index (DI) results
+DI_results_D2 <- readRDS("Simulation_study/Sim_result/DI_results_D2.rds")
+# Access D2C5 results from the loaded results
+priors <- results_D2C5$priors
+```
+### Step 1: Initial Screening based on $\hat{R}$
+
+In this step, we utilize functions from the [diagnostics source file](Diagnostics/Diagnostics.source.R). First, the `traceData_ESS` function reorganizes our dataset so that class numbers align with their probabilities. Specifically, it ranks class 1 as the smallest with the lowest probabilities and assigns their specific parameters accordingly.
+
+Next, the `split_data_into_arrays` function is applied to segment the original dataset (comprising 100 chains) into smaller arrays, each containing a specified number of chains (chains_per_array). For our analysis, we choose to split the data into arrays with 4 chains each, which is a common practice among Stan users.
+
+After preparing our data in smaller arrays, we use the `Rhat_diag_by_chains` function to perform diagnostics. This function evaluates the health of our Markov Chains by calculating the average $\hat{R}$ value for each batch of 4 chains. If any $\hat{R}$ values exceed 1.10, the function raises a warning. This helps us identify potential convergence issues in our GMM analysis.
+```ruby
+# Reorder data 
+Data_reordered_nonPermu <- traceData_ESS(priors, 1, ESS_var = "mu_intercept_1", ESS_chain = 50)$data
+
+# Split data into arrays based on 4 chains per array
+resulting_arrays <- split_data_into_arrays(Data_reordered_nonPermu, chains_per_array = 4)
+
+# Perform Rhat diagnostics on batches of 4 chains
+Rhat_diag_by_chains(resulting_arrays, small_threshold = 1.10)
+```
+For example, when you run `Rhat_diag_by_chains`, it might output something like this:
+```ruby
+> Rhat_diag_by_chains(resulting_arrays, small_threshold = 1.10)
+Out of 25 4-chain batches, 21 (84%) have parameters with Rhat values greater than 1.10.
+$Rhat_mean_by_array
+ [1] 3.480820 1.137247 1.005135 1.006131 2.153176 3.981847 2.014383 1.010046 1.923170 1.404104 2.124564 1.458132 1.311442
+[14] 1.010358 1.840502 1.349176 3.009403 3.040382 1.873492 3.420490 1.347379 1.372399 1.894034 1.888252 1.412714
+```
+Users can also use the `traceplot` function to visualize the ordered class probability parameters across specific chains. 
+This function allows for customizable visualizations tailored to specific chains within the dataset.
+
+```ruby
+# Traceplot by chains
+traceplot(Data_reordered = traceData(results_D2C5$priors, 1, 100000)$data, 
+          num_chains = c(75:76), iterations_per_chain = 1000)$traceplot.by.chain
+```
+
+### Step 2: Stuck-sequence diagnostic
+In this diagnostic step, we aim to identify sequences where parameter draws remain unchanged over consecutive iterations. This is achieved by calculating the moving standard deviation using a specified window size of 10 iterations (adjustable as needed). 
+The `stuck_by_chain` function is used for this purpose, which is designed to detect stuck sequences within MCMC chains. Users have the flexibility to customize the size of the moving window used for standard deviation computation and specify the minimum length of a stuck sequence that should be considered significant. The stuck_by_chain function provides several outputs:
+* Messages indicating which chains exhibit stuck sequences.
+* The total number of chains with identified stuck sequences.
+* Indices of chains where stuck sequences were detected.
+* Chains that display persistent stuck behavior throughout all iterations.
+* Lengths of the identified stuck sequences.
+
+**Example usage**:
+```ruby
+stuck <- lapply(seq_along(priors), 
+                function(i) 
+                  stuck_by_chain(priors[[i]], i, total_iter = 100000,
+                                 iter_per_chain = 1000, window_size = 10, stuck_length = 20))
+
+# Display results
+stuck
+```
+
+### Step 3: Twinlike-class diagnostic
+To identify when class-specific parameters for a pair of classes are nearly indistinguishable, we employ the twinlike_classes function, which use distinguishability index (DI) to assess the similarity between classes. A DI value approaching zero indicates twinlike-class behavior.
+
+This function generates a plot (`DI_plot`) showing the distinguishability index for different class pairs over iterations. It also returns a traceplot (`traceplot`) for selected chains, helping users visualize the MCMC chain behavior. The combined plot (`DIplot_traceplot`) presents both visualizations aligned vertically for comparison. Additionally, `filtered_DI_values` provides DI values that exceed a specified occurrence threshold (`happen_times` - 1), indicating classes with persistent similarities.
+
+Application of `twinlike_classes`  to the D2C5 example:
+```ruby
+DI_data = DI_results_D2$D2C5
+twinlike_classes(DI_data = DI_data, 
+                 selected_chains = c(1:100), 
+                 total_chains = 100, 
+                 iter_per_chain = 1000, 
+                 high_DI_value = 95, 
+                 persist_length = 3,  
+                 happen_times = 1)
+```
+
+The output figures display the traceplot of $\lambda^{(1)}$, $\lambda^{(2)}$, and $\lambda^{(3)}$ in the top panel, and the distinguishability index for all class pairs in the bottom panel. The results indicate that this D2C5 example does not exhibit twinlike-class sequences.
+![Traceplot of class probabilities for three classes and DI plot for all class pairs](Graphs/D2C5_twinlike_diag_example.png)
 </details>
 
