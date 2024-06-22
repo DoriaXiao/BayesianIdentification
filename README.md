@@ -1,5 +1,5 @@
 # Bayesian Identification and Estimation of Growth Mixture Models
-This repository provides Stan code for fitting Growth Mixture Models (GMMs) and includes diagnostics and graphs described in our paper (link will be provided upon publication).
+This repository provides Stan code for fitting Growth Mixture Models (GMMs) and includes diagnostics and graphs described in our forthcoming paper by Xiao, X., Rabe-Hesketh, S., & Skrondal, A. (Link to be provided upon publication).
 
 
 ## Contents
