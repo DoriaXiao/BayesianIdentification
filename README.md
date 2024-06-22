@@ -168,9 +168,14 @@ saveRDS(fit_permuted_3c, "NLSY_ageApp/fit_permuted_3c_D10N100_d.rds")
 
 <details>
 <summary>Visualizing within-class heterogeneity using the NLSY data</summary><br/>
-This section includes code to visualize class-specific mean trajectories with shaded 50% mid-ranges and box plots of reading scores. The detailed code is available in the [application graphs code.](NLSY_data_application/Appl_diag_graphs.code.R)
+
+This section includes code to visualize class-specific mean trajectories with shaded 50% mid-ranges and box plots of reading scores. 
 
 ![Figure 1: Class-specific mean trajectories with shaded 50% mid-range and box-plots of reading scores.](Graphs/AgeAppl_D10N50.png)
+  
+The detailed code is available in the [application graphs code.](NLSY_data_application/Appl_diag_graphs.code.R)
+
+
 </details>
 
 
