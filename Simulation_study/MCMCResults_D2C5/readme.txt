@@ -1,4 +1,4 @@
-This directory contains example datasets for running diagnostic functions, as demonstrated in Simulation_study/Sim_diagnostics_example.code.R. Note that these examples use 4 chains, while the paper uses 100 chains. If using these example data files, please adjust the num_chains parameter in the diagnostics function from num_chains <- 100 to num_chains <- 4.
+This directory contains example datasets for running diagnostic functions, as demonstrated in ```Simulation_study/Sim_diagnostics_example.code.R```. These examples use 4 chains, whereas the analysis in the paper utilizes 100 chains. If using these example data files, please adjust the num_chains parameter in the diagnostics function accordingly, setting num_chains <- 4 for this example.
 
 		rep_a1.rds: This file contains MCMC draws after post-hoc relabeling, generated using Simulation_study/Sim_design.code.R.
 
