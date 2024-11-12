@@ -57,7 +57,7 @@ resulting_arrays <- split_data_into_arrays(Data_reordered_nonPermu, chains_per_a
 Rhat_diag_by_chains(resulting_arrays, small_threshold = 1.05)  # Run Rhat diagnostic
 
 # Generate traceplot for selected chains
-num_chains <- 100  # Adjust to 4 if using the 4-chain example dataset
+num_chains <- 4  # Adjust to x if using the x-chain example dataset
 iterations_per_chain <- 1000
 total_iterations <- num_chains * iterations_per_chain
 traceplot(Data_reordered = traceData(results_D2C5$priors, 1, total_iterations)$data, 
@@ -76,7 +76,7 @@ stuck[[1]]$num_chains_with_stuck
 
 # Step 3: Twinlike-class diagnostic to detect similar class behavior across chains
 twinlike_classes(DI_data = DI_data, 
-                 selected_chains = 1:100, 
+                 selected_chains = 1:4, 
                  total_chains = num_chains, 
                  iter_per_chain = 1000, 
                  high_DI_value = 95, 
@@ -87,7 +87,7 @@ twinlike_classes(DI_data = DI_data,
 diagnostics_graphs(
   Data = traceData(priors, 1, total_iterations),
   window_size = 10,
-  selected_chains = 1:100,
+  selected_chains = 1:4,
   iter_per_chain = 1000,
   top_percentile_threshold = 0.95,
   DI_data = DI_data,
