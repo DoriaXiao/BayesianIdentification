@@ -58,14 +58,16 @@ Rhat_diag_by_chains(resulting_arrays, small_threshold = 1.05)
 
 
 # Traceplot by chains
-
-traceplot(Data_reordered = traceData(results_D2C5$priors, 1, 100000)$data, 
+num_chains <- 100
+iterations_per_chain <- 1000
+total_iterations <- num_chains*iterations_per_chain
+traceplot(Data_reordered = traceData(results_D2C5$priors, 1, total_iterations)$data, 
           num_chains = c(75:76), iterations_per_chain = 1000)$traceplot.by.chain
 
 # Step 2: Stuck-sequence diagnostic
 stuck <- lapply(seq_along(priors), 
                 function(i) 
-                  stuck_by_chain(priors[[i]], i, total_iter = 100000,
+                  stuck_by_chain(priors[[i]], i, total_iter = total_iterations,
                                  iter_per_chain = 1000, window_size = 10, stuck_length = 20))
 stuck
 
@@ -75,7 +77,7 @@ stuck[[1]]$num_chains_with_stuck
 # Step 3: Twinlike-class diagnostic
 twinlike_classes(DI_data = DI_data, 
                  selected_chains = c(1:100), 
-                 total_chains = 100, 
+                 total_chains = num_chains, 
                  iter_per_chain = 1000, 
                  high_DI_value = 95, 
                  persist_length = 3,  
@@ -84,13 +86,13 @@ twinlike_classes(DI_data = DI_data,
 # Step 4: Miniscule-class diagnostic example
 DI_data = DI_results_D2$D2C5
 diagnostics_graphs(
-  Data = traceData(priors, 1, 100000),
+  Data = traceData(priors, 1, total_iterations),
   window_size = 10,
   selected_chains = c(1:100),
   iter_per_chain = 1000,
   top_percentile_threshold = 0.95,
   DI_data = DI_data,
-  total_chains = 100,
+  total_chains = num_chains,
   high_DI_value = 95,
   persist_length = 3,
   happen_times = 1
