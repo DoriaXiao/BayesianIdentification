@@ -1,3 +1,9 @@
-This directory contains example datasets for diagnostic functions, as outlined in Simulation_study/Sim_diagnostics_example.code.R. Please note that this example uses 4 chains, in contrast to the 100 chains used in the paper. When using these example data files, be sure to adjust the num_chains parameter in the diagnostics function from num_chains <- 100 to num_chains <- 4.
+This directory contains example datasets for running diagnostic functions, as demonstrated in Simulation_study/Sim_diagnostics_example.code.R. Note that these examples use 4 chains, while the paper uses 100 chains. If using these example data files, please adjust the num_chains parameter in the diagnostics function from num_chains <- 100 to num_chains <- 4.
 
-The file rep_a1.rds contains MCMC draws obtained after post-hoc relabeling, based on the code in Simulation_study/Sim_design.code.R. The file log_l.rds stores the corresponding log-likelihood values, calculated post-relabeling (see Simulation_study/log_l.R for the computation process). These files are provided as 4-chain examples for use with the diagnostic function. If desired, you may generate these files independently with your own configurations.
+		rep_a1.rds: This file contains MCMC draws after post-hoc relabeling, generated using Simulation_study/Sim_design.code.R.
+
+		log_l.rds: This file stores the log-likelihood values calculated post-relabeling (see Simulation_study/log_l.R for details on the calculation process). These files serve as 4-chain examples for the diagnostic function, but you can also generate them independently with your own configurations.
+
+		DI_data.rds: This file contains the calculated Distinguishability Index (DI) values, introduced in the paper, using MCMC draws obtained after post-hoc relabeling (rep_a1.rds).
+
+These example files allow for quick testing of diagnostic functions with smaller datasets and can be customized as needed.
