@@ -4,7 +4,7 @@ This directory contains example datasets for running diagnostic functions, as de
 
 - **`rep_a1.rds`**: Contains MCMC draws after post-hoc relabeling, generated with [Sim_design.code.R](../../Sim_design.code.R).
 
-- **`log_l.rds`**: Stores log-likelihood values calculated after relabeling (refer to [log_l.R](../../log_l.R) for the computation process). This file serves as a 4-chain example for the diagnostic function, but can also be generated independently with different configurations.
+- **`log_l.rds`**: Stores log-likelihood values calculated after relabeling (refer to [log_l.R](../../Simulation_study/log_l.R) for the computation process). This file serves as a 4-chain example for the diagnostic function, but can also be generated independently with different configurations.
 
 - **`DI_data.rds`**: Contains the calculated Distinguishability Index (DI) values, as introduced in the paper, using MCMC draws from `rep_a1.rds` after post-hoc relabeling.
 
