@@ -242,22 +242,24 @@ read_Stan_in_directory <- function(directory) {
 }
 # Function to read files from a specific subdirectory
 read_files_in_directory <- function(subdirectory) {
-  directory <- paste("Simulation_study/MCMCResults_", subdirectory, sep = "")
+  directory <- paste0("Simulation_study/MCMCResults_", subdirectory)
+  
+  # Load MCMC samples
   file_paths <- list.files(directory, full.names = TRUE, pattern = "rep_a")
   file_contents <- map(file_paths, readRDS)
   
-  # Read the log likelihood file
-  log_l_path <- file.path(directory, "log_l.rds")
-  log_l <- readRDS(log_l_path)
+  # Load log-likelihood and DI index files
+  log_l <- readRDS(file.path(directory, "log_l.rds"))
+  DI_data <- readRDS(file.path(directory, "DI_data.rds"))
   
-  return(list(log_l = log_l, priors = file_contents))
+  return(list(log_l = log_l, priors = file_contents, DI_data = DI_data))
 }
 
 # Replace "D2C5" with your desired subdirectory
 results_D2C5 <- read_files_in_directory("D2C5")
 
 # Load Distinguishability Index (DI) results
-DI_results_D2 <- readRDS("Simulation_study/Sim_result/DI_results_D2.rds")
+DI_data <- results_D2C5$DI_data
 # Access D2C5 results from the loaded results
 priors <- results_D2C5$priors
 ```
@@ -349,7 +351,7 @@ The [twinlike_classes](Diagnostics/Twinlike_classes_diagnostics.source.R) functi
 
 We select the first four chains from the D2C5 example to display the application of the `twinlike-class` function:
 ```ruby
-DI_data = DI_results_D2$D2C5
+DI_data = DI_data
 twinlike_classes(DI_data = DI_data, 
                  selected_chains = c(1:4), 
                  total_chains = 100, 
@@ -371,7 +373,6 @@ We use [diagnostics_graphs](Diagnostics/Three_diagnostic_graphs.source.R) functi
 For example, we apply `diagnostics_graphs` to the D2C5 dataset, selecting the first four chains as an example:
 
 ```ruby
-DI_data = DI_results_D2$D2C5
 # Function to perform diagnostics and generate visualizations for miniscule-class behavior
 diagnostics_graphs(
   Data = traceData(priors, 1, 100000), #   Data: List containing MCMC trace data
