@@ -1,52 +1,51 @@
-# Simulate data
-setwd("C:/Users/xingy/OneDrive/2023 Fall/BayesIdentify/GitHub_code")
+# Load necessary source file for data simulation
 source("~/Simulation_study/SimCode.source.R")
 
+# Function to simulate data using specified parameters for an Unconditional Growth Mixture Model (UncGMM)
 data_fun_MCMC <- function() {
   UncGMM_dat <- UncGMM_data(
-    n_pers = 405,
-    n_time = 4,
-    beta_int = c(3.417, 2.637, 2.019),
-    beta_slo_time = c(1.297, 2.607, 1.393),
-    beta_slo_time_sq = c(-0.094, -0.472, -0.120),
-    sd_i = c(0.967, 0.599, 0.188),
-    sd_s = c(0.263, 0.265, 0.356),
-    cor_is = c(-0.567, 0.048, 0.677),
-    sd_r = 0.469,
-    K = 3,
-    lambda_K = c(0.266, 0.269, 0.465)
+    n_pers = 405,  # Number of individuals
+    n_time = 4,  # Number of time points
+    beta_int = c(3.417, 2.637, 2.019),  # Intercept values for each class
+    beta_slo_time = c(1.297, 2.607, 1.393),  # Linear slope coefficients for each class
+    beta_slo_time_sq = c(-0.094, -0.472, -0.120),  # Quadratic slope coefficients for each class
+    sd_i = c(0.967, 0.599, 0.188),  # Intercept standard deviations for each class
+    sd_s = c(0.263, 0.265, 0.356),  # Slope standard deviations for each class
+    cor_is = c(-0.567, 0.048, 0.677),  # Correlation between intercept and slope for each class
+    sd_r = 0.469,  # Residual standard deviation
+    K = 3,  # Number of latent classes
+    lambda_K = c(0.266, 0.269, 0.465)  # Class proportions
   )
   return(as.data.frame(UncGMM_dat))
 }
 
-# Load saved simulated datasets
+# Load simulated datasets from specified directory
 data_files <- list.files("~/Simulation_study/SimDat", full.names = TRUE, pattern = "SimulatedData_a")
-SimDat <- data_files %>% map(read_csv)
+SimDat <- data_files %>% map(read_csv)  # Load datasets into a list
 
-# Functions to load MCMC results
+# Function to load MCMC results from a specified directory
 read_Stan_in_directory <- function(directory) {
   file_paths <- list.files(directory, full.names = TRUE, pattern = "Stan_a")
   file_contents <- map(file_paths, readRDS)
   return(file_contents)
 }
 
+# Function to load MCMC samples and log-likelihood file for a specified subdirectory
 read_files_in_directory <- function(subdirectory) {
   directory <- paste("Simulation_study/MCMCResults_", subdirectory, sep = "")
   file_paths <- list.files(directory, full.names = TRUE, pattern = "rep_a")
   file_contents <- map(file_paths, readRDS)
   
-  # Read the log_l.rds file
+  # Load log-likelihood values
   log_l_path <- file.path(directory, "log_l.rds")
   log_l <- readRDS(log_l_path)
   
   return(list(log_l = log_l, priors = file_contents))
 }
 
-# Replace "D2C5" with your desired subdirectory
+# Load data and diagnostics for a specific example. Replace "D2C5" with your desired subdirectory
 results_D2C5 <- read_files_in_directory("D2C5")
 
-# Load DI index results
-DI_results_D2 <- readRDS("Simulation_study/Sim_result_example/DI_results_D2.rds")
 
 priors <- results_D2C5$priors
 
@@ -58,7 +57,7 @@ Rhat_diag_by_chains(resulting_arrays, small_threshold = 1.05)
 
 
 # Traceplot by chains
-num_chains <- 100
+num_chains <- 100 # change to 4 if you use example from "~/Simulation_study/MCMCResults_D2C5"
 iterations_per_chain <- 1000
 total_iterations <- num_chains*iterations_per_chain
 traceplot(Data_reordered = traceData(results_D2C5$priors, 1, total_iterations)$data, 
